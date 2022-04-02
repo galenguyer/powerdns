@@ -1,5 +1,9 @@
 [package]
 name = "powerdns"
+authors = ["Galen Guyer <galen@galenguyer.com>"]
+description = "A PowerDNS API client"
+repository = "https://github.com/galenguyer/powerdns"
+license = "MIT"
 version = "0.1.0"
 edition = "2021"
 
