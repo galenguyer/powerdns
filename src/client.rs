@@ -16,7 +16,7 @@ impl Client {
         headers.insert("X-API-Key", auth_header);
         let accept_header = header::HeaderValue::from_static("application/json");
         headers.insert(header::ACCEPT, accept_header);
-    
+
         let http_client = reqwest::Client::builder()
             .user_agent("powerdns.rs/0.1")
             .default_headers(headers)
@@ -46,6 +46,8 @@ mod tests {
 
     #[test]
     fn build_client() {
+        dotenvy::dotenv().ok();
+
         let _client = Client::new(
             &env::var("PDNS_HOST").unwrap_or_else(|_| String::from("http://localhost:8081")),
             &env::var("PDNS_SERVER").unwrap_or_else(|_| String::from("localhost")),

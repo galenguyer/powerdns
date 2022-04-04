@@ -6,7 +6,7 @@ use crate::{Client, Error};
 /// PowerDNS Authoritative Server, the server_id is always localhost. However,
 /// the API is written in a way that a proxy could be in front of many servers,
 /// each with their own server_id.
-#[derive(Default, Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde_with::skip_serializing_none]
 pub struct Server {
     /// Set to “Server”

@@ -4,5 +4,5 @@ pub mod server;
 pub mod zones;
 
 // re-exports for convenience
-pub use error::Error;
 pub use client::Client;
+pub use error::Error;
