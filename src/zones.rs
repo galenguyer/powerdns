@@ -100,7 +100,7 @@ pub struct RRSet {
     /// existing comments will be deleted as well. When comments is present, all
     /// existing comments for the RRs matching name and type will be deleted,
     /// and then new comments given in comments will be created.
-    pub changetype: String,
+    pub changetype: Option<String>,
     /// All records in this RRSet. When updating Records, this is the list of
     /// new records (replacing the old ones). Must be empty when changetype is
     /// set to DELETE. An empty list results in deletion of all records (and
