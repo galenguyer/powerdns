@@ -75,6 +75,13 @@ pub enum ZoneKind {
     Slave,
 }
 
+
+/// PatchZones used to create zones with PATCH method.
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct PatchZones {
+    pub rrsets: Option<Vec<RRSet>>
+}
+
 // impl ZoneKind {
 //     fn as_str(&self) -> &'static str {
 //         match self {
@@ -212,7 +219,7 @@ impl<'a> ZoneClient<'a> {
     }
 
     /// Patches zone, by assigning new rrsets to this zone.
-    pub async fn patch(&self, zone_id: &str, rrset: RRSet) -> Result<(), Error> {
+    pub async fn patch(&self, zone_id: &str, zone: Zone) -> Result<(), Error> {
         let response = self
             .api_client
             .http_client
@@ -221,7 +228,7 @@ impl<'a> ZoneClient<'a> {
                         self.api_client.base_url,
                         self.api_client.server_name,
                 ))
-            .json(&rrset)
+            .json(&zone)
             .send()
             .await?;
 
