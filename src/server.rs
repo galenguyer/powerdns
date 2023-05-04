@@ -1,6 +1,7 @@
 use serde::Deserialize;
 
 use crate::{Client, Error};
+use crate::error::PowerDNSResponseError;
 
 /// The server endpoint is the ‘basis’ for all other API operations. In the
 /// PowerDNS Authoritative Server, the server_id is always localhost. However,
@@ -60,7 +61,7 @@ impl<'a> ServerClient<'a> {
         if resp.status().is_success() {
             Ok(resp.json::<Vec<Server>>().await.unwrap())
         } else {
-            Err(resp.json::<Error>().await.unwrap())
+            Err(resp.json::<PowerDNSResponseError>().await?)?
         }
     }
 
@@ -95,7 +96,7 @@ impl<'a> ServerClient<'a> {
         if resp.status().is_success() {
             Ok(resp.json::<Server>().await.unwrap())
         } else {
-            Err(resp.json::<Error>().await.unwrap())
+            Err(resp.json::<PowerDNSResponseError>().await?)?
         }
     }
 }
