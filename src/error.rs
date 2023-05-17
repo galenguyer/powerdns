@@ -17,6 +17,7 @@ pub enum Error {
     #[error("received unexpected status code: {}", 0)]
     UnexpectedStatusCode(StatusCode),
 
+    // TODO: add serde error
     #[error("other error: {}", 0)]
     DeserializeError(#[from] Box<dyn std::error::Error>)
 }

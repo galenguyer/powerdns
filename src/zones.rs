@@ -1,9 +1,6 @@
-use std::fmt::format;
-use std::os::macos::raw::stat;
 use addr::parse_domain_name;
-use reqwest::{Request, StatusCode};
+use reqwest::{StatusCode};
 use serde::{Deserialize, Serialize};
-use serde_json::json;
 
 use crate::Client;
 use crate::Error;
@@ -79,7 +76,7 @@ pub enum ZoneKind {
 /// PatchZones used to create zones with PATCH method.
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct PatchZone {
-    pub rrsets: Option<Vec<RRSet>>
+    pub rrsets: Vec<RRSet>
 }
 
 // impl ZoneKind {
