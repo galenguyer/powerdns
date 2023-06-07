@@ -17,6 +17,8 @@ pub enum Error {
     #[error("received unexpected status code: {0}")]
     UnexpectedStatusCode(StatusCode),
 
+
+
     #[error("deserialization error: {0}")]
     DeserializeError(#[from] serde_json::Error),
 
