@@ -1,4 +1,4 @@
-use std::fmt::{Display, Formatter, Write};
+use std::fmt::{Debug, Display, Formatter, Write};
 use reqwest::StatusCode;
 use serde::Deserialize;
 use thiserror::Error;
@@ -18,8 +18,11 @@ pub enum Error {
     UnexpectedStatusCode(StatusCode),
 
     // TODO: add serde error
-    #[error("other error: {}", 0)]
-    DeserializeError(#[from] Box<dyn std::error::Error>)
+    #[error("deserialization error: {0}")]
+    DeserializeError(#[from] serde_json::Error),
+
+    #[error("other error: {0}")]
+    Other(#[from] Box<dyn std::error::Error + Send + Sync + 'static>)
 }
 
 
