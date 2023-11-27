@@ -1,11 +1,13 @@
 use addr::parse_domain_name;
-use serde::Deserialize;
+use reqwest::{StatusCode};
+use serde::{Deserialize, Serialize};
 
 use crate::Client;
 use crate::Error;
+use crate::error::PowerDNSResponseError;
 
 /// A Zone object represents an authoritative DNS Zone.
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[serde_with::skip_serializing_none]
 pub struct Zone {
     /// Opaque zone id (string), assigned by the server, should not be
@@ -63,11 +65,18 @@ pub struct Zone {
     pub slave_tsig_key_ids: Option<Vec<String>>,
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub enum ZoneKind {
     Native,
     Master,
     Slave,
+}
+
+
+/// PatchZones used to create zones with PATCH method.
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct PatchZone {
+    pub rrsets: Vec<RRSet>
 }
 
 // impl ZoneKind {
@@ -81,7 +90,7 @@ pub enum ZoneKind {
 // }
 
 /// This represents a Resource Record Set (all records with the same name and type).
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[serde_with::skip_serializing_none]
 pub struct RRSet {
     /// Name for record set (e.g. “www.powerdns.com.”)
@@ -113,7 +122,7 @@ pub struct RRSet {
 }
 
 /// The RREntry object represents a single record.
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[serde_with::skip_serializing_none]
 pub struct Record {
     /// The content of this record
@@ -124,7 +133,7 @@ pub struct Record {
 }
 
 /// A comment about an RRSet.
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[serde_with::skip_serializing_none]
 pub struct Comment {
     /// The actual comment
@@ -158,9 +167,9 @@ impl<'a> ZoneClient<'a> {
             .unwrap();
 
         if resp.status().is_success() {
-            Ok(resp.json::<Vec<Zone>>().await.unwrap())
+            Ok(resp.json::<Vec<Zone>>().await?)
         } else {
-            Err(resp.json::<Error>().await.unwrap())
+            Err(resp.json::<PowerDNSResponseError>().await?)?
         }
     }
 
@@ -179,9 +188,9 @@ impl<'a> ZoneClient<'a> {
             .unwrap();
 
         if resp.status().is_success() {
-            Ok(resp.json::<Zone>().await.unwrap())
+            Ok(resp.json::<Zone>().await?)
         } else {
-            Err(resp.json::<Error>().await.unwrap())
+            Err(resp.json::<PowerDNSResponseError>().await?)?
         }
     }
 
@@ -202,7 +211,37 @@ impl<'a> ZoneClient<'a> {
         if resp.status().is_success() {
             Ok(())
         } else {
-            Err(resp.json::<Error>().await.unwrap())
+            Err(resp.json::<PowerDNSResponseError>().await?)?
+        }
+    }
+
+    /// Patches zone, by assigning new rrsets to this zone.
+    pub async fn patch(&self, zone_id: &str, zone: PatchZone) -> Result<(), Error> {
+        let response = self
+            .api_client
+            .http_client
+            .patch(
+                format!("{}/api/v1/servers/{}/zones/{zone_id}",
+                        self.api_client.base_url,
+                        self.api_client.server_name,
+                ))
+            .json(&zone)
+            .send()
+            .await?;
+
+        match response.status() {
+            // 204 No Content – Returns 204 No Content on success.
+            // 400 Bad Request – The supplied request was not valid Returns: Error object
+            // 404 Not Found – Requested item was not found Returns: Error object
+            // 422 Unprocessable Entity – The input to the operation was not valid Returns: Error object
+            // 500 Internal Server Error – Internal server error Returns: Error object
+
+            StatusCode::NO_CONTENT => Ok(()),
+            StatusCode::BAD_REQUEST | StatusCode::NOT_FOUND |
+            StatusCode::UNPROCESSABLE_ENTITY | StatusCode::INTERNAL_SERVER_ERROR => {
+                Err(Error::PowerDNS(response.json().await?))
+            },
+            status @ _ => Err(Error::UnexpectedStatusCode(status)),
         }
     }
 }
