@@ -1,4 +1,4 @@
-use std::fmt::{Debug, Display, Formatter, Write};
+use std::fmt::{Debug, Display, Formatter};
 use reqwest::StatusCode;
 use serde::Deserialize;
 use thiserror::Error;

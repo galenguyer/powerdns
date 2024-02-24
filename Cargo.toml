@@ -4,18 +4,18 @@ authors = ["Galen Guyer <galen@galenguyer.com>"]
 description = "A PowerDNS API client"
 repository = "https://github.com/galenguyer/powerdns"
 license = "MIT"
-version = "0.1.1"
+version = "0.2.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-addr = "0.15.3"
-reqwest = { version = "0.11.10", features = ["json"] }
-serde = { version = "1.0.136", features = ["derive"] }
-serde_json = "1.0.79"
-serde_with = "1.12.0"
-thiserror = "1.0.40"
+addr = "0.15.6"
+reqwest = { version = "0.11.24", features = ["json"] }
+serde = { version = "1.0.197", features = ["derive"] }
+serde_json = "1.0.114"
+serde_with = "3.6.1"
+thiserror = "1.0.57"
 
 [dev-dependencies]
 dotenvy = "0.15.1"

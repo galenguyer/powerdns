@@ -241,7 +241,7 @@ impl<'a> ZoneClient<'a> {
             StatusCode::UNPROCESSABLE_ENTITY | StatusCode::INTERNAL_SERVER_ERROR => {
                 Err(Error::PowerDNS(response.json().await?))
             },
-            status @ _ => Err(Error::UnexpectedStatusCode(status)),
+            status => Err(Error::UnexpectedStatusCode(status)),
         }
     }
 }
